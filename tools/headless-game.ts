@@ -88,8 +88,11 @@ function advanceVirtualTime(deltaTime: number) {
  */
 export async function createHeadlessGame(
   nbBots = 8,
-  gameMode: GameMode = GameMode.CLASSIC
+  gameMode: GameMode = GameMode.CLASSIC,
+  agentIds: string[] = []
 ): Promise<GameRoom> {
+  // MODE=dev (from .env) would give 999 gold at the start instead of the real 5
+  process.env.MODE = ""
   const room = new GameRoom() as any
   room.state = new GameState("headless", "headless", true, gameMode, null, null, null)
   room.broadcast = () => {}
@@ -146,6 +149,25 @@ export async function createHeadlessGame(
     )
     state.players.set(id, player)
     state.botManager.addBot(player)
+  }
+
+  // players controlled from outside (not scripted), set up like human players in onCreate
+  for (const id of agentIds) {
+    const player = new Player(
+      id,
+      id,
+      1000,
+      1,
+      "0001/Normal",
+      false,
+      state.players.size + 1,
+      new Map<string, IPokemonCollectionItemForPlayer>(),
+      "",
+      Role.BASIC,
+      state
+    )
+    state.players.set(id, player)
+    state.shop.assignShop(player, false, state)
   }
 
   // let the bots finish loading their scripted boards (Bot.initialize is async)
