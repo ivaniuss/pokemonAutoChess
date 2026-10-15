@@ -15,12 +15,13 @@ import type GameRoom from "../app/rooms/game-room"
 import { FIGHTING_PHASE_DURATION } from "../app/config"
 import { Role } from "../app/types"
 import { GameMode } from "../app/types/enum/Game"
+import type { Item } from "../app/types/enum/Item"
 import { Pkm } from "../app/types/enum/Pokemon"
 import { Weather } from "../app/types/enum/Weather"
 
 const TICK_MS = 50 // same as MAX_SIMULATION_DELTA_TIME in the game server
 
-type BoardSpec = Array<[Pkm, number, number]> // [pokemon, x, y] with y in 1..3
+export type BoardSpec = Array<[Pkm, number, number, Item[]?]> // [pokemon, x, y, items] with y in 1..3
 
 // Minimal stand-in for GameRoom: only what Simulation reaches for during a fight
 function createFakeRoom(state: GameState): GameRoom {
@@ -50,10 +51,11 @@ function createPlayer(id: string, state: GameState, board: BoardSpec) {
     Role.BOT,
     state
   )
-  for (const [pkm, x, y] of board) {
+  for (const [pkm, x, y, items] of board) {
     const pokemon = PokemonFactory.createPokemonFromName(pkm, player)
     pokemon.positionX = x
     pokemon.positionY = y
+    items?.forEach((item) => pokemon.items.add(item))
     player.board.set(pokemon.id, pokemon)
   }
   return player
