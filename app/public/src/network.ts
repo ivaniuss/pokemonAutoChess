@@ -2,7 +2,7 @@ import { Client, type Room } from "@colyseus/sdk"
 import type { User } from "@firebase/auth-types"
 import firebase from "firebase/compat/app"
 import type { server } from "../../app.config.ts"
-import { FIREBASE_CONFIG } from "../../config"
+import { initFirebase } from "./firebase-init"
 import type AfterGameState from "../../rooms/states/after-game-state"
 import type GameState from "../../rooms/states/game-state"
 import type LobbyState from "../../rooms/states/lobby-state"
@@ -31,9 +31,7 @@ logger.info(`Colyseus endpoint: ${endpoint}`)
 export const client = new Client<typeof server>(endpoint)
 
 export function authenticateUser() {
-  if (!firebase.apps.length) {
-    firebase.initializeApp(FIREBASE_CONFIG)
-  }
+  initFirebase()
 
   return new Promise<User>((resolve, reject) => {
     firebase.auth().onAuthStateChanged(async (user) => {

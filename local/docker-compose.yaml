@@ -1,0 +1,10 @@
+# Local MongoDB for development (no authentication). Usage: npm run local:db
+services:
+  mongo:
+    image: mongo:8.2.6-noble
+    ports:
+      - 27017:27017
+    volumes:
+      - pac-mongo-data:/data/db
+volumes:
+  pac-mongo-data:

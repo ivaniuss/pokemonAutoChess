@@ -6,7 +6,7 @@ import { flushSync } from "react-dom"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
 import pkg from "../../../../package.json"
-import { FIREBASE_CONFIG } from "../../../config"
+import { initFirebase } from "../firebase-init"
 import type GameState from "../../../rooms/states/game-state"
 import { GameMode, GamePhaseState } from "../../../types/enum/Game"
 import {
@@ -114,9 +114,7 @@ export default function Replay() {
   useEffect(() => {
     // a cold page load at /replay skips the login/auth flow, so nothing has initialized the firebase app
     // yet; init it here (no sign-in) or any firebase.auth() access while watching throws app-compat/no-app
-    if (!firebase.apps.length) {
-      firebase.initializeApp(FIREBASE_CONFIG)
-    }
+    initFirebase()
     // re-arm on (re)mount: StrictMode's setup/cleanup/setup sets aliveRef false and refs persist, so without this every deferred buildAndBoot bails
     aliveRef.current = true
     return () => {

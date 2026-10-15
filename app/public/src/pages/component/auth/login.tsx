@@ -3,7 +3,7 @@ import "firebase/compat/auth"
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router"
-import { FIREBASE_CONFIG } from "../../../../../config"
+import { initFirebase } from "../../../firebase-init"
 import { throttle } from "../../../../../utils/function"
 import { joinLobbyRoom } from "../../../game/lobby-logic"
 import { useAppDispatch, useAppSelector } from "../../../hooks"
@@ -51,9 +51,7 @@ export default function Login() {
   }
 
   // Initialize Firebase
-  if (!firebase.apps.length) {
-    firebase.initializeApp(FIREBASE_CONFIG)
-  }
+  initFirebase()
 
   useEffect(() => {
     firebase.auth().onAuthStateChanged((u) => {

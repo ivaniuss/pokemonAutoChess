@@ -233,6 +233,9 @@ export const server = defineServer({
               "https://*.pokemon-auto-chess.com",
               "wss://*.pokemon-auto-chess.com",
               "https://*.firebaseapp.com",
+              ...(process.env.FIREBASE_AUTH_EMULATOR_URL
+                ? [process.env.FIREBASE_AUTH_EMULATOR_URL]
+                : []),
               "https://apis.google.com",
               "https://*.googleapis.com",
               "https://*.doubleclick.net", // google ads, required for youtube embedded
