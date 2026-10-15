@@ -178,6 +178,18 @@ function rankPokemon(counter: Counter, minUsed: number) {
     })
     .sort((a, b) => b.delta - a.delta)
   printRows("Pokemon vs same-cost average", rows, true)
+  const focus = process.env.FOCUS
+  const focusRow = rows.find((r) => r.name === focus)
+  if (focus) {
+    console.log(
+      focusRow
+        ? `
+FOCUS ${focus}: cost ${focusRow.cost}, win rate ${(focusRow.rate * 100).toFixed(1)}% ` +
+            `(${focusRow.delta >= 0 ? "+" : ""}${(focusRow.delta * 100).toFixed(1)} pts vs same cost, ${focusRow.used} uses)`
+        : `
+FOCUS ${focus}: not enough uses`
+    )
+  }
 }
 
 // Items: delta = win rate minus 50%, the expected rate for a neutral item
