@@ -2,6 +2,7 @@
  * Line-based JSON server that exposes PacEnv to other languages (see python/pac_env.py).
  *
  * Requests (one JSON object per line on stdin):
+ *   {"cmd":"info"}
  *   {"cmd":"reset"}
  *   {"cmd":"step","action":{"type":"buy","index":0}}
  *   {"cmd":"close"}
@@ -12,9 +13,13 @@
  * Usage: node --import tsx tools/env-server.ts
  */
 import { createInterface } from "node:readline"
+import { SHOP_SIZE } from "../app/config"
+import { Pkm } from "../app/types/enum/Pokemon"
+import { Synergy } from "../app/types/enum/Synergy"
 import { type Action, PacEnv } from "./pac-env"
 
 type Request =
+  | { cmd: "info" }
   | { cmd: "reset" }
   | { cmd: "step"; action: Action }
   | { cmd: "close" }
@@ -27,6 +32,14 @@ function send(message: unknown) {
 
 async function handle(request: Request) {
   switch (request.cmd) {
+    case "info":
+      // stable vocabularies, so clients can turn names into integer ids
+      send({
+        pkmNames: Object.values(Pkm),
+        synergyNames: Object.values(Synergy),
+        shopSize: SHOP_SIZE
+      })
+      break
     case "reset": {
       if (env) await env.reset()
       else env = await PacEnv.create()

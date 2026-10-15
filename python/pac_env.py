@@ -62,6 +62,10 @@ class PacEnv:
         self._proc.stdin.flush()
         return self._read()
 
+    def info(self) -> dict:
+        """Static game data: pkmNames, synergyNames, shopSize."""
+        return self._request({"cmd": "info"})
+
     def reset(self):
         """Starts a new game. Returns (observation, legal_actions)."""
         m = self._request({"cmd": "reset"})
