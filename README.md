@@ -134,14 +134,20 @@ FIREBASE_PRIVATE_KEY=<any RSA private key in PEM format, with newlines written a
 >
 ```
 
-Then, in separate terminals:
+Import the bots once (needs the MongoDB container running):
 
 ```
-npm run local:db          # MongoDB in Docker (run once)
-npm run local:seed-bots   # import the bots (run once)
-npm run local:auth        # Firebase Auth emulator
-npm run dev               # the game
+npm run local:db
+npm run local:seed-bots
 ```
+
+Then start everything (MongoDB, Firebase Auth emulator and the game) with a single command:
+
+```
+npm run local
+```
+
+The three parts can also be run separately with `npm run local:db`, `npm run local:auth` and `npm run dev`.
 
 Users created in the emulator are lost when it restarts.
 

@@ -30,6 +30,7 @@
     "dev-client": "node esbuild.js --dev",
     "dev-server": "tsx watch ./app/index.ts",
     "dev": "npm-run-all --parallel dev-*",
+    "local": "npm-run-all local:db --parallel local:auth dev",
     "local:db": "docker compose -f local/docker-compose.yaml up -d",
     "local:auth": "npx --yes firebase-tools@13 emulators:start --only auth --project demo-pac --config local/firebase.json",
     "local:seed-bots": "docker compose -f local/docker-compose.yaml exec -T mongo mongoimport --db dev --collection botv2 --jsonArray --drop < db-commands/botv2.json",
