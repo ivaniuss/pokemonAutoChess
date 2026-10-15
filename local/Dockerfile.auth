@@ -1,0 +1,7 @@
+# Firebase Auth emulator, used by local/compose.play.yaml
+FROM node:24.19.0-alpine
+RUN npm install -g firebase-tools@13
+WORKDIR /srv
+COPY firebase.docker.json firebase.json
+EXPOSE 9099
+CMD ["firebase", "emulators:start", "--only", "auth", "--project", "demo-pac"]

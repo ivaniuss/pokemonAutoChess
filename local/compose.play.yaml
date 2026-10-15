@@ -1,0 +1,66 @@
+# Run the whole game locally with a single command, no accounts or API keys needed:
+#   docker compose -f local/compose.play.yaml up --build
+# Then open http://localhost:9000
+name: pac-play
+
+services:
+  mongo:
+    image: mongo:8.2.6-noble
+    restart: unless-stopped
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  # Imports the bots once, then exits
+  seed:
+    image: mongo:8.2.6-noble
+    depends_on:
+      mongo:
+        condition: service_healthy
+    volumes:
+      - ../db-commands/botv2.json:/botv2.json:ro
+    command: >
+      mongoimport --uri mongodb://mongo:27017/dev --collection botv2
+      --jsonArray --mode upsert --file /botv2.json
+    restart: "no"
+
+  auth:
+    build:
+      context: .
+      dockerfile: Dockerfile.auth
+    restart: unless-stopped
+    ports:
+      - "9099:9099"
+
+  app:
+    build:
+      context: ..
+      dockerfile: local/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+      auth:
+        condition: service_started
+    ports:
+      - "9000:9000"
+    environment:
+      MODE: ${MODE:-}
+      MONGO_URI: mongodb://mongo:27017/dev
+      FIREBASE_AUTH_EMULATOR_URL: auto
+      FIREBASE_AUTH_EMULATOR_HOST: auth:9099
+      FIREBASE_PROJECT_ID: demo-pac
+      FIREBASE_CLIENT_EMAIL: fake@demo-pac.iam.gserviceaccount.com
+    entrypoint:
+      - sh
+      - -c
+      - |
+        export FIREBASE_PRIVATE_KEY="$$(openssl genrsa 2048 2>/dev/null | awk '{printf "%s\n", $$0}')"
+        exec node app/public/dist/server/app/index.js
+
+volumes:
+  mongo-data:

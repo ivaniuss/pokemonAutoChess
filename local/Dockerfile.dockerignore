@@ -1,0 +1,5 @@
+.git
+**/node_modules
+.env
+firebase-debug.log
+app/public/dist/server

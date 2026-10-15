@@ -234,7 +234,11 @@ export const server = defineServer({
               "wss://*.pokemon-auto-chess.com",
               "https://*.firebaseapp.com",
               ...(process.env.FIREBASE_AUTH_EMULATOR_URL
-                ? [process.env.FIREBASE_AUTH_EMULATOR_URL]
+                ? [
+                    process.env.FIREBASE_AUTH_EMULATOR_URL === "auto"
+                      ? "http://*:9099"
+                      : process.env.FIREBASE_AUTH_EMULATOR_URL
+                  ]
                 : []),
               "https://apis.google.com",
               "https://*.googleapis.com",

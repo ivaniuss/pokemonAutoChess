@@ -100,6 +100,51 @@ FIREBASE_PRIVATE_KEY=<private_key>
 
 And you are done for the configuration part. Now you should be able to run the game locally ! 
 
+### Run everything locally (no external accounts)
+
+You can run the game without a MongoDB Atlas account, a Firebase project or any API key. Authentication is handled by the [Firebase Auth emulator](https://firebase.google.com/docs/emulator-suite) and the database by a local MongoDB, both running on your machine.
+
+**Option A: Docker only (nothing else to install, works on Windows, macOS and Linux)**
+
+Install [Docker](https://docs.docker.com/get-docker/), then from the root of the repository:
+
+```
+docker compose -f local/compose.play.yaml up --build
+```
+
+The first build takes several minutes (it packs all the game assets). Then open [http://localhost:9000/](http://localhost:9000/) and use the guest login. Other people on the same network can play with `http://<your-ip>:9000/`. Stop with `Ctrl+C`; data is kept in a Docker volume. The emulator has no real security, so do not expose these ports to the internet.
+
+**Option B: development setup (hot reload)**
+
+Requires Node and Docker. Copy `.env-example` to `.env` and set:
+
+```
+MODE=dev
+MONGO_URI=mongodb://127.0.0.1:27017/dev
+FIREBASE_AUTH_EMULATOR_URL=http://127.0.0.1:9099
+FIREBASE_AUTH_EMULATOR_HOST=127.0.0.1:9099
+FIREBASE_PROJECT_ID=demo-pac
+FIREBASE_API_KEY=fake-api-key
+FIREBASE_AUTH_DOMAIN=demo-pac.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=demo-pac.appspot.com
+FIREBASE_MESSAGING_SENDER_ID=000000000000
+FIREBASE_APP_ID=1:000000000000:web:0000000000000000
+FIREBASE_CLIENT_EMAIL=fake@demo-pac.iam.gserviceaccount.com
+FIREBASE_PRIVATE_KEY=<any RSA private key in PEM format, with newlines written as 
+>
+```
+
+Then, in separate terminals:
+
+```
+npm run local:db          # MongoDB in Docker (run once)
+npm run local:seed-bots   # import the bots (run once)
+npm run local:auth        # Firebase Auth emulator
+npm run dev               # the game
+```
+
+Users created in the emulator are lost when it restarts.
+
 ### Run the game
 
 Make sure you did all the previous steps correctly.
