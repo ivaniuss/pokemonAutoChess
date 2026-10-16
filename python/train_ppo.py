@@ -66,12 +66,15 @@ def main():
 
     obs = []
     masks = []
+    prev_life = []  # normalized life (1.0 = full) after the previous step, per environment
     for env in envs:
         o, info = env.reset()
         obs.append(o)
         masks.append(info["action_mask"])
+        prev_life.append(float(o["scalars"][2]))
 
     ROLLOUT, EPOCHS, CLIP, GAMMA, LAM, ENTROPY = 128, 4, 0.2, 1.0, 0.95, 0.01
+    LIFE_WEIGHT = 2.0  # losing all life in one step would cost 2.0
     results = deque(maxlen=50)  # final placement reward of recent games
     stages = deque(maxlen=50)  # stage reached in recent games
     games_done = 0
@@ -96,6 +99,12 @@ def main():
                     # no learning signal; surviving more stages is rewarded on top of it
                     r = r + info["stage"] / 30
                     o, info = env.reset()
+                    prev_life[i] = float(o["scalars"][2])
+                else:
+                    # dense signal: life lost in the fights since the previous step
+                    life = float(o["scalars"][2])
+                    r = LIFE_WEIGHT * (life - prev_life[i])
+                    prev_life[i] = life
                 obs[i], masks[i] = o, info["action_mask"]
                 rewards.append(r)
                 dones.append(float(terminated))
